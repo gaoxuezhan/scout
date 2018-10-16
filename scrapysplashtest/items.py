@@ -12,9 +12,13 @@ from scrapy import Item, Field
 class ProductItem(Item):
     collection = 'products'
     
-    image = Field()
+    company = Field()
+    code = Field()
+    departureTime = Field()
+    departureAirport = Field()
+    timeCost = Field()
+    type = Field()
+    arriveTime = Field()
+    arriveAirport = Field()
     price = Field()
-    deal = Field()
-    title = Field()
-    shop = Field()
-    location = Field()
+    updateTime = Field()

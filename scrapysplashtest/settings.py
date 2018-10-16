@@ -94,10 +94,11 @@ KEYWORDS = ['iPad']
 
 MAX_PAGE = 100
 
-SPLASH_URL = 'http://localhost:8050'
+SPLASH_URL = 'http://192.168.1.99:8050'
 
 DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
 HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
 
-MONGO_URI = 'localhost'
-MONGO_DB = 'taobao'
+# MONGO_URI = 'admin:gaoxz@192.168.1.99:27017'
+MONGO_URI = 'mongodb://admin:gaoxz@192.168.1.99:27017'
+MONGO_DB = 'tianxun'
