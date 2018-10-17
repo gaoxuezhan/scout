@@ -20,15 +20,15 @@ class TaobaoSpider(Spider):
     name = 'taobao'
     allowed_domains = ['www.tianxun.com']
     base_url = 'https://s.taobao.com/search?q='
-    
+    url = 'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-11-03&cabin=Economy'
+
     def start_requests(self):
         # for keyword in self.settings.get('KEYWORDS'):
         #     for page in range(1, self.settings.get('MAX_PAGE') + 1):
         #         url = self.base_url + quote(keyword)
         #         yield SplashRequest(url, callback=self.parse, endpoint='execute',
         #                             args={'lua_source': script, 'page': page, 'wait': 7})
-        url = 'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-11-03&cabin=Economy'
-        yield SplashRequest(url, callback=self.parse, endpoint='execute',
+        yield SplashRequest(self.url, callback=self.parse, endpoint='execute',
                             args={'lua_source': script,  'wait': 0.5})
 
     def parse(self, response):
@@ -82,3 +82,10 @@ class TaobaoSpider(Spider):
             item['price'] = s.select('.pricefield')[0].text
             item['updateTime'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             yield item
+
+        if len(soup) < 1:
+            print('"No body here! I must go back to get it again!"')
+            yield SplashRequest(self.url, callback=self.parse, endpoint='execute',
+                                args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
+        else:
+            print('"Mission complete! Waiting for next time! Over!"')
