@@ -19,8 +19,14 @@ end
 class TaobaoSpider(Spider):
     name = 'taobao'
     allowed_domains = ['www.tianxun.com']
-    base_url = 'https://s.taobao.com/search?q='
-    url = 'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-11-03&cabin=Economy'
+    now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    urls = ['https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-11-13&cabin=Economy',
+            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-28&cabin=Economy',
+            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-29&cabin=Economy',
+            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-30&cabin=Economy',
+            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-31&cabin=Economy'
+            ]
 
     def start_requests(self):
         # for keyword in self.settings.get('KEYWORDS'):
@@ -28,10 +34,13 @@ class TaobaoSpider(Spider):
         #         url = self.base_url + quote(keyword)
         #         yield SplashRequest(url, callback=self.parse, endpoint='execute',
         #                             args={'lua_source': script, 'page': page, 'wait': 7})
-        yield SplashRequest(self.url, callback=self.parse, endpoint='execute',
-                            args={'lua_source': script,  'wait': 0.5})
+
+        for url in self.urls:
+            yield SplashRequest(url, callback=self.parse, endpoint='execute',
+                                args={'lua_source': script,  'wait': 0.5})
 
     def parse(self, response):
+
         # print('gaoxz1:' + str(response.text))
         # print('gaoxz2:' + str(type(response)))
         # products = response.xpath(
@@ -47,10 +56,23 @@ class TaobaoSpider(Spider):
         #     item['location'] = product.xpath('.//div[contains(@class, "location")]//text()').extract_first()
         #     yield item
 
+        original_request = response.request
+        original_url = original_request.meta['splash']['args']['url']
+        # print(original_url)
+
         # ouput -> All
         soup = BeautifulSoup(response.body, from_encoding="utf-8")
 
-        # print(soup)
+        target_date = soup.select("#departDate")
+        target_date = target_date[0]['value']
+
+        departure_city = soup.select("#depCity")
+        departure_city = departure_city[0]['value']
+
+        arrive_city = soup.select("#dstCity")
+        arrive_city = arrive_city[0]['value']
+
+        print(target_date + "_" + departure_city[0:2] + "_" + arrive_city[0:2])
 
         bars = soup.select(".loadingBar")
 
@@ -59,7 +81,7 @@ class TaobaoSpider(Spider):
             if "display: inline;" in b['style']:
                 print('"the enemy is reloading,I think I should wait a moment!"')
 
-                yield SplashRequest(self.url, callback=self.parse, endpoint='execute',
+                yield SplashRequest(original_url, callback=self.parse, endpoint='execute',
                                     args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
 
                 return 0
@@ -69,7 +91,7 @@ class TaobaoSpider(Spider):
 
         if len(soup) < 1:
             print('"No body here! I must go back to get it again!"')
-            yield SplashRequest(self.url, callback=self.parse, endpoint='execute',
+            yield SplashRequest(original_url, callback=self.parse, endpoint='execute',
                                 args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
         else:
 
@@ -88,7 +110,7 @@ class TaobaoSpider(Spider):
                 # print(s.select('div.box3 > p.oneWay.runBox')[0].text)
                 item = ProductItem()
 
-                if(len(s.select('div.box1 > span.fl.airline > b')) > 0):
+                if len(s.select('div.box1 > span.fl.airline > b')) > 0:
                     item['code'] = s.select('div.box1 > span.fl.airline > b')[0].text
                     s.select('div.box1 > span.fl.airline > b')[0].decompose()
                 else:
@@ -98,10 +120,13 @@ class TaobaoSpider(Spider):
                 item['company'] = s.select('div.box1 > span.fl.airline')[0].text
                 item['departureTime'] = s.select('div.box2 > p')[0].text
                 item['departureAirport'] = s.select('div.box2 > span')[0].text
+                item['departureCity'] = departure_city[0:2]
                 item['timeCost'] = s.select('div.box3.fl.ac > p.timeBox')[0].text
                 item['type'] = s.select('div.box3 > p.oneWay.runBox')[0].text
                 item['arriveTime'] = s.select('div.box4 > p')[0].text
                 item['arriveAirport'] = s.select('div.box4 > span')[0].text
+                item['arriveCity'] = arrive_city[0:2]
                 item['price'] = s.select('.pricefield')[0].text
-                item['updateTime'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                item['updateTime'] = self.now_time
+                item['targetDate'] = target_date
                 yield item
