@@ -1,2 +1,3 @@
 source activate python36
-python /ftp/scout/scout.py
+cd /ftp/scout
+scrapy crawl taobao
