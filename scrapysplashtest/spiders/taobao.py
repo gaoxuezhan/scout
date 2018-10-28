@@ -50,42 +50,58 @@ class TaobaoSpider(Spider):
         # ouput -> All
         soup = BeautifulSoup(response.body, from_encoding="utf-8")
 
+        # print(soup)
+
+        bars = soup.select(".loadingBar")
+
+        for b in bars:
+            print(b['style'])
+            if "display: inline;" in b['style']:
+                print('"the enemy is reloading,I think I should wait a moment!"')
+
+                yield SplashRequest(self.url, callback=self.parse, endpoint='execute',
+                                    args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
+
+                return 0
+
         # ouput -> attrs={"ui-view": "content"}
         soup = soup.select(".list_con")
-        for s in soup:
-            # print(s.text)
-            # print(str(s))
-            # print(s.select('div.box1 > span.fl.airline')[0].text)
-            # # print(s.select('div.box1 > span.fl.airline > b')[0].text)
-            # # print(s.select('div.box1 > span.fl.airline > b')[0].decompose())
-            #
-            # print(s.select('div.box2 > p')[0].text)
-            # print(s.select('div.box2 > span')[0].text)
-            # print(s.select('div.box3.fl.ac > p.timeBox')[0].text)
-            # print(s.select('div.box3 > p.oneWay.runBox')[0].text)
-            item = ProductItem()
-
-            if(len(s.select('div.box1 > span.fl.airline > b')) > 0):
-                item['code'] = s.select('div.box1 > span.fl.airline > b')[0].text
-                s.select('div.box1 > span.fl.airline > b')[0].decompose()
-            else:
-                item['code'] = s.select('div.box1 > span.fl.airline > span > b')[0].text
-                s.select('div.box1 > span.fl.airline > span > b')[0].decompose()
-
-            item['company'] = s.select('div.box1 > span.fl.airline')[0].text
-            item['departureTime'] = s.select('div.box2 > p')[0].text
-            item['departureAirport'] = s.select('div.box2 > span')[0].text
-            item['timeCost'] = s.select('div.box3.fl.ac > p.timeBox')[0].text
-            item['type'] = s.select('div.box3 > p.oneWay.runBox')[0].text
-            item['arriveTime'] = s.select('div.box4 > p')[0].text
-            item['arriveAirport'] = s.select('div.box4 > span')[0].text
-            item['price'] = s.select('.pricefield')[0].text
-            item['updateTime'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            yield item
 
         if len(soup) < 1:
             print('"No body here! I must go back to get it again!"')
             yield SplashRequest(self.url, callback=self.parse, endpoint='execute',
                                 args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
         else:
+
             print('"Mission complete! Waiting for next time! Over!"')
+
+            for s in soup:
+                # print(s.text)
+                # print(str(s))
+                # print(s.select('div.box1 > span.fl.airline')[0].text)
+                # # print(s.select('div.box1 > span.fl.airline > b')[0].text)
+                # # print(s.select('div.box1 > span.fl.airline > b')[0].decompose())
+                #
+                # print(s.select('div.box2 > p')[0].text)
+                # print(s.select('div.box2 > span')[0].text)
+                # print(s.select('div.box3.fl.ac > p.timeBox')[0].text)
+                # print(s.select('div.box3 > p.oneWay.runBox')[0].text)
+                item = ProductItem()
+
+                if(len(s.select('div.box1 > span.fl.airline > b')) > 0):
+                    item['code'] = s.select('div.box1 > span.fl.airline > b')[0].text
+                    s.select('div.box1 > span.fl.airline > b')[0].decompose()
+                else:
+                    item['code'] = s.select('div.box1 > span.fl.airline > span > b')[0].text
+                    s.select('div.box1 > span.fl.airline > span > b')[0].decompose()
+
+                item['company'] = s.select('div.box1 > span.fl.airline')[0].text
+                item['departureTime'] = s.select('div.box2 > p')[0].text
+                item['departureAirport'] = s.select('div.box2 > span')[0].text
+                item['timeCost'] = s.select('div.box3.fl.ac > p.timeBox')[0].text
+                item['type'] = s.select('div.box3 > p.oneWay.runBox')[0].text
+                item['arriveTime'] = s.select('div.box4 > p')[0].text
+                item['arriveAirport'] = s.select('div.box4 > span')[0].text
+                item['price'] = s.select('.pricefield')[0].text
+                item['updateTime'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                yield item
