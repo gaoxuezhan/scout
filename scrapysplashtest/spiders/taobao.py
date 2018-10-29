@@ -6,11 +6,40 @@ from scrapy_splash import SplashRequest
 from bs4 import BeautifulSoup
 import datetime
 
+# script = """
+# function main(splash, args)
+#   splash:set_user_agent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36')
+#   assert(splash:go(args.url))
+#   assert(splash:wait(0.5))
+#   return splash:html()
+# end
+# """
 script = """
 function main(splash, args)
   splash:set_user_agent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36')
   assert(splash:go(args.url))
   assert(splash:wait(0.5))
+
+  if maxwait == nil then
+    maxwait = 200
+  end
+  
+  local i=0
+  while not splash:select('#go-flight-0 > div.box5 > a') do
+    if i==maxwait then
+      maxwait = -1
+      break
+    end
+    i=i+1
+    splash:wait(0.1)
+  end
+  
+  if maxwait ~= -1 then
+    submit = splash:select('#go-flight-0 > div.box5 > a')
+    submit:mouse_click()
+    splash:wait(3)
+  end
+    
   return splash:html()
 end
 """
@@ -25,7 +54,12 @@ class TaobaoSpider(Spider):
             'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-28&cabin=Economy',
             'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-29&cabin=Economy',
             'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-30&cabin=Economy',
-            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-31&cabin=Economy'
+            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-31&cabin=Economy',
+            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-01-01&cabin=Economy',
+            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-01-02&cabin=Economy',
+            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-01-03&cabin=Economy',
+            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-01-04&cabin=Economy',
+            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-01-05&cabin=Economy'
             ]
 
     def start_requests(self):
@@ -74,6 +108,7 @@ class TaobaoSpider(Spider):
 
         print(target_date + "_" + departure_city[0:2] + "_" + arrive_city[0:2])
 
+# ------------------------------------------------------------------------------------
         bars = soup.select(".loadingBar")
 
         for b in bars:
@@ -85,6 +120,29 @@ class TaobaoSpider(Spider):
                                     args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
 
                 return 0
+
+# ------------------------------------------------------------------------------------
+        chinese = soup.select(".unfold-int")
+
+        if len(chinese) < 1:
+            print('"Sorry,I think the Mr.Splash is down.Cover me!"')
+            yield SplashRequest(original_url, callback=self.parse, endpoint='execute',
+                                args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
+
+            return 0
+        else:
+            chinese = soup.select(".unfold-int")[0].text
+            if not("旅" in chinese or "网" in chinese):
+                print('"Sorry,no chinese here!I must fall back!"')
+                print(chinese)
+                yield SplashRequest(original_url, callback=self.parse, endpoint='execute',
+                                    args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
+
+                return 0
+            else:
+                print('"OK!Spotting the enemy!"')
+                print(chinese)
+# ------------------------------------------------------------------------------------
 
         # ouput -> attrs={"ui-view": "content"}
         soup = soup.select(".list_con")
