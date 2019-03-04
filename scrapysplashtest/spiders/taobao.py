@@ -50,16 +50,14 @@ class TaobaoSpider(Spider):
     allowed_domains = ['www.tianxun.com']
     now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    urls = ['https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-11-13&cabin=Economy',
-            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-28&cabin=Economy',
-            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-29&cabin=Economy',
-            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-30&cabin=Economy',
-            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2018-12-31&cabin=Economy',
-            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-01-01&cabin=Economy',
-            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-01-02&cabin=Economy',
-            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-01-03&cabin=Economy',
-            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-01-04&cabin=Economy',
-            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-01-05&cabin=Economy'
+    urls = ['https://www.tianxun.com/oneway-pek-cszx.html?depdate=2019-04-04&cabin=Economy',
+            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2019-04-05&cabin=Economy',
+            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-04-07&cabin=Economy',
+            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-04-08&cabin=Economy',
+            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2019-05-01&cabin=Economy',
+            'https://www.tianxun.com/oneway-pek-cszx.html?depdate=2019-05-02&cabin=Economy',
+            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-04-26&cabin=Economy',
+            'https://www.tianxun.com/oneway-cszx-bjsa.html?depdate=2019-04-27&cabin=Economy'
             ]
 
     def start_requests(self):
