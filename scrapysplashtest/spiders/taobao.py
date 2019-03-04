@@ -120,26 +120,26 @@ class TaobaoSpider(Spider):
                 return 0
 
 # ------------------------------------------------------------------------------------
-        chinese = soup.select(".unfold-int")
-
-        if len(chinese) < 1:
-            print('"Sorry,I think the Mr.Splash is down.Cover me!"')
-            yield SplashRequest(original_url, callback=self.parse, endpoint='execute',
-                                args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
-
-            return 0
-        else:
-            chinese = soup.select(".unfold-int")[0].text
-            if not("旅" in chinese or "网" in chinese):
-                print('"Sorry,no chinese here!I must fall back!"')
-                print(chinese)
-                yield SplashRequest(original_url, callback=self.parse, endpoint='execute',
-                                    args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
-
-                return 0
-            else:
-                print('"OK!Spotting the enemy!"')
-                print(chinese)
+#         chinese = soup.select(".unfold-int")
+#
+#         if len(chinese) < 1:
+#             print('"Sorry,I think the Mr.Splash is down.Cover me!"')
+#             yield SplashRequest(original_url, callback=self.parse, endpoint='execute',
+#                                 args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
+#
+#             return 0
+#         else:
+#             chinese = soup.select(".unfold-int")[0].text
+#             if not("旅" in chinese or "网" in chinese):
+#                 print('"Sorry,no chinese here!I must fall back!"')
+#                 print(chinese)
+#                 yield SplashRequest(original_url, callback=self.parse, endpoint='execute',
+#                                     args={'lua_source': script, 'wait': 0.5}, dont_filter=True)
+#
+#                 return 0
+#             else:
+#                 print('"OK!Spotting the enemy!"')
+#                 print(chinese)
 # ------------------------------------------------------------------------------------
 
         # ouput -> attrs={"ui-view": "content"}
